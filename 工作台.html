@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>低粉爆款雷达</title>
+<style>
+:root{
+  --ink:#1a1a1a; --ink-2:#555; --ink-3:#8a8a8a; --ink-4:#b0b0b0;
+  --line:#e8e8e6; --line-2:#f0f0ee;
+  --bg:#fff; --bg-side:#fafaf8; --bg-hover:#f4f4f1; --bg-sel:#ececE7;
+  --green:#0e8a5f; --green-bg:#eaf6f0; --green-line:#bfe3d2;
+  --amber:#b4761a; --amber-bg:#fdf3e4;
+  --red:#b3382f;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink); background:#d8d8d4;
+  -webkit-font-smoothing:antialiased;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+/* ── macOS 窗口外壳 ── */
+.win{
+  width:100%; max-width:1480px; height:calc(100vh - 48px);
+  background:var(--bg-side); border-radius:12px; overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.14),0 18px 50px rgba(0,0,0,.22);
+  display:flex; flex-direction:column;
+}
+.titlebar{
+  height:38px; flex:none; display:flex; align-items:center; gap:8px;
+  padding:0 14px; background:transparent;
+}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.titlebar .t{font-size:13px;color:var(--ink-2);margin-left:6px}
+.body{flex:1; display:flex; min-height:0; padding:4px 10px 10px 0}
+html.app body{padding:0;background:var(--bg-side)}
+html.app .win{max-width:none;height:100vh;border-radius:0;box-shadow:none}
+html.app .titlebar{display:none}
+html.app .body{padding-top:10px}
+/* ── 左侧导航 ── */
+.side{
+  width:186px; flex:none; background:transparent;
+  padding:12px 10px 0;
+  display:flex; flex-direction:column;
+}
+.brand{display:flex;align-items:baseline;gap:7px;padding:0 8px 16px}
+.brand b{font-size:16px;letter-spacing:.5px}
+.brand span{font-size:9px;color:var(--ink-4);letter-spacing:1.4px}
+.search{
+  display:flex;align-items:center;gap:7px;padding:6px 8px;margin:0 0 14px;
+  border-radius:7px;color:var(--ink-3);font-size:13px;cursor:default;
+}
+.search:hover{background:var(--bg-hover)}
+.search kbd{margin-left:auto;font:11px/1 inherit;color:var(--ink-4)}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav .gap{height:14px}
+.nav a{
+  display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;
+  color:var(--ink-2);text-decoration:none;font-size:13.5px;cursor:pointer;
+}
+.nav a:hover{background:var(--bg-hover)}
+.nav a.on{background:var(--bg-sel);color:var(--ink);font-weight:600}
+.nav a .ic{width:15px;text-align:center;font-size:13px;opacity:.75}
+.nav a .n{margin-left:auto;font-size:12px;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.nav a.on .n{color:var(--ink-2)}
+.side .foot{margin-top:auto;border-top:1px solid var(--line);padding-top:8px}
+/* ── 右侧主区 ── */
+.main{flex:1;min-width:0;overflow-y:auto;padding:22px 26px 40px;
+  background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.main::-webkit-scrollbar{width:9px}
+.main::-webkit-scrollbar-thumb{background:#dcdcd8;border-radius:5px;border:2px solid #fff}
+.eyebrow{font-size:12px;color:var(--ink-3);margin-bottom:9px}
+.tabs{display:flex;align-items:flex-end;gap:22px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tab{
+  display:flex;align-items:baseline;gap:6px;padding:0 1px 10px;margin-bottom:-1px;
+  font-size:20px;font-weight:600;color:var(--ink-4);cursor:pointer;
+  border-bottom:2px solid transparent;
+}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--ink);border-bottom-color:var(--ink)}
+.tab i{font-style:normal;font-size:11.5px;font-weight:500;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.tabs .right{margin-left:auto;display:flex;gap:8px;align-items:center;padding-bottom:8px}
+.inp{
+  border:1px solid var(--line);border-radius:7px;padding:5px 10px;font:12.5px inherit;
+  color:var(--ink);width:208px;background:#fff;
+}
+.inp::placeholder{color:var(--ink-4)}
+.btn{
+  border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 11px;
+  font:12.5px inherit;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:5px;
+}
+.btn:hover{background:var(--bg-hover)}
+.btn.primary{background:var(--green-bg);border-color:var(--green-line);color:var(--green)}
+/* ── 统计卡 ── */
+.stats{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:11px;margin-bottom:22px}
+.stat{
+  border:1px solid var(--line);border-radius:var(--r);padding:12px 14px 13px;
+  cursor:pointer;background:#fff;position:relative;
+}
+.stat:hover{background:var(--bg-side)}
+.stat.on{border-color:var(--green-line);background:var(--green-bg)}
+.stat .k{font-size:12px;color:var(--ink-3);display:flex;align-items:center}
+.stat .chk{margin-left:auto;font-size:11px;color:var(--green);font-weight:600;display:none}
+.stat.on .chk{display:block}
+.stat .v{font-size:27px;font-weight:600;letter-spacing:-.5px;line-height:1.3;font-variant-numeric:tabular-nums}
+.stat .s{font-size:11.5px;color:var(--ink-4)}
+/* ── 本周热议 ── */
+.panel{border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:20px}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.ph b{font-size:13.5px}
+.ph .hint{font-size:11.5px;color:var(--ink-4)}
+.ph .seg{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.ph .seg span{padding:3px 11px;font-size:12px;color:var(--ink-3);cursor:pointer;background:#fff}
+.ph .seg span+span{border-left:1px solid var(--line)}
+.ph .seg span.on{background:var(--bg-sel);color:var(--ink);font-weight:600}
+.hot{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:10px}
+.hc{border:1px solid var(--line);border-radius:9px;padding:11px 12px;cursor:pointer;background:#fff}
+.hc:hover{border-color:var(--ink-4)}
+.hc b{font-size:13.5px;display:block;margin-bottom:5px}
+.hc .m{font-size:11.5px;color:var(--ink-3)}
+.hc .m em{font-style:normal;color:var(--ink);font-weight:600}
+.hc .f{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:11px}
+.pip{width:6px;height:6px;border-radius:50%;flex:none}
+.pip.new{background:var(--green)}.pip.up{background:var(--amber)}.pip.keep{background:var(--ink-4)}
+.hc .f .lb{color:var(--ink-3)}
+.hc .f .gap-tag{margin-left:auto;background:var(--green-bg);color:var(--green);border-radius:4px;padding:1px 5px;font-size:10.5px}
+/* ── 筛选 chip 行 ── */
+.bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.chip{
+  border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12px;
+  color:var(--ink-2);cursor:pointer;background:#fff;display:flex;align-items:center;gap:5px;
+  user-select:none;
+}
+.chip:hover{border-color:var(--ink-4)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .pip{width:5px;height:5px}
+.chip i{font-style:normal;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.chip.on i{color:#bbb}
+.bar .sep{width:1px;height:16px;background:var(--line);margin:0 3px}
+.bar .right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.sel{border:none;background:none;font:12px inherit;color:var(--ink-2);cursor:pointer}
+.subhint{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-4);margin-bottom:12px}
+/* ── 卡片网格 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;background:#fff;display:flex;flex-direction:column}
+.card:hover{border-color:var(--ink-4)}
+.cover{
+  aspect-ratio:5/6;position:relative;display:flex;align-items:center;justify-content:center;
+  padding:16px;text-align:center;font-weight:800;font-size:19px;line-height:1.25;letter-spacing:-.3px;
+}
+.cover img.shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover .badge,.cover .status{z-index:1}
+.dshot{display:block;max-width:100%;max-height:420px;border-radius:8px;border:1px solid var(--line);margin-bottom:12px}
+.badge{
+  position:absolute;top:8px;left:8px;font-size:10.5px;font-weight:700;color:#fff;
+  padding:2px 7px;border-radius:5px;background:rgba(20,20,20,.72);backdrop-filter:blur(4px);
+  font-variant-numeric:tabular-nums;letter-spacing:.2px;
+}
+.badge.a{background:var(--green)}
+.status{position:absolute;top:8px;right:8px;font-size:10.5px;padding:2px 6px;border-radius:5px;background:#fff;color:var(--ink-2)}
+.status.pass{color:var(--green)}.status.drop{color:var(--ink-4)}.status.edit{color:var(--amber)}
+.cbody{padding:9px 11px 10px;display:flex;flex-direction:column;flex:1}
+.ctitle{font-size:13px;font-weight:500;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+.cmeta{margin-top:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-3);white-space:nowrap}
+.cmeta .who{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cmeta .inter{margin-left:auto;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pf{width:6px;height:6px;border-radius:50%;flex:none}
+.pf.dy{background:#1a1a1a}.pf.xhs{background:#e2412f}.pf.jj{background:#1e80ff}.pf.yt{background:#ff0033}.pf.ig{background:#c13584}.pf.x{background:#555}.pf.scys{background:#d4a017}
+/* ── 表格视图 ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:left;font-weight:500;color:var(--ink-3);font-size:11.5px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl tr:hover td{background:var(--bg-side);cursor:pointer}
+.tbl .num{font-variant-numeric:tabular-nums;text-align:right}
+.tbl .mult{font-weight:700;color:var(--green)}
+.bartrack{width:90px;height:4px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.bartrack span{display:block;height:100%;background:#7cc8a6}
+/* ── 详情抽屉 ── */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .18s}
+.mask.on{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:min(620px,92vw);background:#fff;
+  border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(0,0,0,.08);
+  transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column;
+}
+.drawer.on{transform:none}
+.dh{padding:16px 22px 13px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px}
+.dh h2{font-size:17px;line-height:1.45;flex:1}
+.x{border:none;background:none;font-size:20px;color:var(--ink-3);cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px}
+.x:hover{background:var(--bg-hover)}
+.db{flex:1;overflow-y:auto;padding:16px 22px 28px}
+.src{font-size:12px;color:var(--ink-3);background:var(--bg-side);border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;margin-bottom:18px;line-height:1.8}
+.src a{color:var(--green);word-break:break-all}
+.src b{color:var(--ink)}
+.demo{display:inline-block;font-size:10.5px;background:var(--amber-bg);color:var(--amber);border-radius:4px;padding:0 6px;margin-left:4px}
+.sec{margin-bottom:20px}
+.sec h3{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.5px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:5px 10px;font-size:13px}
+.kv dt{color:var(--ink-3)}
+.script{font-size:14px;line-height:1.9;border-left:2px solid var(--green-line);padding-left:13px}
+.script p{margin-bottom:10px}
+.script .lbl{display:block;font-size:11px;font-weight:600;color:var(--green);letter-spacing:.5px}
+.review{display:flex;gap:8px;margin-top:6px}
+.review .btn{flex:1;justify-content:center;padding:8px}
+.review .btn.on.pass{background:var(--green-bg);border-color:var(--green-line);color:var(--green);font-weight:600}
+.review .btn.on.edit{background:var(--amber-bg);border-color:#f0d6aa;color:var(--amber);font-weight:600}
+.review .btn.on.drop{background:var(--bg-sel);color:var(--ink);font-weight:600}
+textarea.note{width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:13px/1.6 inherit;resize:vertical;min-height:68px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.empty{text-align:center;color:var(--ink-4);padding:60px 0;font-size:13px}
+.page{display:none}.page.on{display:block}
+.today h1{font-size:28px;font-weight:600;margin:6px 0 4px;font-family:"Songti SC","STSong","SimSun",serif}
+.today .lead{color:var(--ink-2);margin-bottom:24px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.row .t{flex:1;font-size:14px}
+.row .tag{font-size:12px;color:var(--ink-3)}
+.row .go{font-size:12.5px;color:var(--ink-2);cursor:pointer}
+.row .go:hover{color:var(--green)}
+/* ── 灵感 ── */
+.capture{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px 10px;margin-bottom:18px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.capture:focus-within{border-color:var(--green-line);box-shadow:0 0 0 3px var(--green-bg)}
+.capture textarea{width:100%;border:none;outline:none;resize:none;font:15px/1.7 inherit;color:var(--ink);background:none}
+.capture textarea::placeholder{color:var(--ink-4)}
+.cap-bar{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-2);padding-top:10px;margin-top:4px}
+.kinds{display:flex;gap:6px}
+.kind{font-size:12px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);cursor:pointer;color:var(--ink-2);user-select:none;background:#fff}
+.kind:hover{border-color:var(--ink-4)}
+.kind.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cap-bar .inp{margin-left:auto;width:240px}
+.idea-day{font-size:12px;color:var(--ink-3);margin:20px 0 2px;font-weight:600}
+.idea{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line-2);align-items:flex-start}
+.idea .tm{font-size:12px;color:var(--ink-4);width:40px;flex:none;padding-top:3px;font-variant-numeric:tabular-nums}
+.idea .kd{font-size:11px;padding:1px 7px;border-radius:4px;background:var(--bg-sel);color:var(--ink-2);flex:none;margin-top:3px}
+.idea .kd.topic{background:var(--green-bg);color:var(--green)}
+.idea .kd.line{background:var(--amber-bg);color:var(--amber)}
+.idea .main-col{flex:1;min-width:0}
+.idea .tx{font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word;outline:none;border-radius:5px}
+.idea .tx[contenteditable]{background:var(--bg-side);box-shadow:0 0 0 2px var(--green-line);padding:2px 6px;margin:-2px -6px}
+.idea .sr{font-size:12px;color:var(--ink-3);margin-top:3px;word-break:break-all}
+.idea .sr a{color:var(--green)}
+.idea .st{font-size:11px;color:var(--green);margin-left:6px}
+.idea .acts{display:flex;gap:2px;opacity:0;transition:opacity .12s;flex:none}
+.idea:hover .acts,.idea:focus-within .acts{opacity:1}
+.idea .acts button{border:none;background:none;font:12px inherit;color:var(--ink-3);padding:3px 7px;border-radius:5px;cursor:pointer}
+.idea .acts button:hover{background:var(--bg-hover);color:var(--ink)}
+.idea .acts button.danger:hover{color:var(--red)}
+.idea.archived .tx,.idea.archived .kd{opacity:.45}
+.today-cols{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:40px}
+.today-side .eyebrow{margin-top:4px}
+.mini-idea{padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.mini-idea:hover .t{color:var(--green)}
+.mini-idea .t{font-size:13.5px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mini-idea .m{font-size:11.5px;color:var(--ink-4);margin-top:2px}
+/* ── 热点 ── */
+.srcs{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-3);margin-bottom:14px}
+.srcs .ok{color:var(--green)}.srcs .bad{color:var(--red)}
+.trend{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line-2);align-items:flex-start}
+.trend .sl{font-size:11px;padding:1px 7px;border-radius:4px;background:var(--bg-sel);color:var(--ink-2);flex:none;margin-top:3px;min-width:44px;text-align:center}
+.trend .main-col{flex:1;min-width:0}
+.trend .tt{font-size:14px;line-height:1.6;color:var(--ink);text-decoration:none;word-break:break-word}
+.trend .tt:hover{color:var(--green)}
+.trend .ds{font-size:12px;color:var(--ink-3);margin-top:2px;line-height:1.6}
+.trend .mt{font-size:11.5px;color:var(--ink-4);margin-top:3px}
+.trend .mt em{font-style:normal;background:var(--green-bg);color:var(--green);border-radius:4px;padding:0 5px;margin-right:6px}
+.trend .nw{font-size:10.5px;color:#fff;background:var(--green);border-radius:4px;padding:0 5px;margin-right:6px;vertical-align:1px}
+.trend .acts{display:flex;gap:4px;flex:none}
+.trend .acts button{border:1px solid var(--line);background:#fff;font:12px inherit;color:var(--ink-2);padding:3px 9px;border-radius:6px;cursor:pointer}
+.trend .acts button:hover{background:var(--bg-hover);color:var(--ink)}
+.trend .acts button.go{border-color:var(--green-line);color:var(--green);background:var(--green-bg)}
+.trend.done .tt,.trend.done .sl{opacity:.5}
+.trend .st{font-size:11.5px;color:var(--ink-3);align-self:center}
+.trend{cursor:pointer}.trend:hover .tt{color:var(--green)}
+/* 阅读器：盖住右侧主区，正文由壳里的第二个 WebView2 画在 #rd-view 上 */
+.reader{position:fixed;background:var(--bg);border-radius:12px;display:none;flex-direction:column;z-index:5}
+.reader.on{display:flex}
+.rd-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);flex:none}
+.rd-bar .ti{flex:1;min-width:0;display:flex;flex-direction:column}
+.rd-bar .ti b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-bar .ti span{font-size:11px;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-bar .btn[disabled]{opacity:.4;cursor:default}
+.rd-view{flex:1;min-height:0;border-radius:0 0 12px 12px;display:flex;align-items:center;justify-content:center;color:var(--ink-4);font-size:13px}
+</style>
+</head>
+<body>
+<div class="win">
+  <div class="titlebar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="t">低粉爆款雷达</span>
+  </div>
+  <div class="body">
+    <aside class="side">
+      <div class="brand"><b>工作台</b><span>RADAR</span></div>
+      <div class="search">⌕ 搜索<kbd>Ctrl K</kbd></div>
+      <nav class="nav" id="nav">
+        <a data-p="today"><span class="ic">☼</span>今天</a>
+        <a data-p="idea"><span class="ic">✎</span>灵感<span class="n" id="n-idea"></span></a>
+        <a data-p="trend"><span class="ic">↯</span>热点<span class="n" id="n-trend"></span></a>
+        <a data-p="find" class="on"><span class="ic">◎</span>发现<span class="n" id="n-find"></span></a>
+        <a data-p="topic"><span class="ic">♢</span>选题<span class="n" id="n-topic"></span></a>
+        <div class="gap"></div>
+        <a data-p="bench"><span class="ic">⚇</span>对标池<span class="n" id="n-bench"></span></a>
+        <a data-p="kw"><span class="ic">⌕</span>搜索词<span class="n" id="n-kw"></span></a>
+      </nav>
+      <div class="foot nav"><a data-p="rules"><span class="ic">⚙</span>规则</a></div>
+    </aside>
+
+    <main class="main">
+      <!-- 今天 -->
+      <section class="page today" id="p-today"></section>
+
+      <!-- 灵感 -->
+      <section class="page" id="p-idea">
+        <div class="eyebrow">灵感 · 想到就记，不用整理 · 任何页面按 Ctrl I 回到这里</div>
+        <div class="tabs"><div class="tab on">灵感<i id="t-idea"></i></div>
+          <div class="right"><input class="inp" id="idea-q" placeholder="搜索灵感"></div></div>
+        <div class="capture">
+          <textarea id="idea-in" rows="3" placeholder="想到什么写什么。Enter 记下，Shift + Enter 换行"></textarea>
+          <div class="cap-bar">
+            <div class="kinds" id="idea-kinds"></div>
+            <input class="inp" id="idea-src" placeholder="出处 / 链接（可空）">
+            <button class="btn primary" id="idea-add">记下</button>
+          </div>
+        </div>
+        <div class="bar" id="idea-bar"></div>
+        <div id="idea-list"></div>
+      </section>
+
+      <!-- 热点 -->
+      <section class="page" id="p-trend">
+        <div class="eyebrow" id="trend-eyebrow"></div>
+        <div class="tabs"><div class="tab on">热点<i id="t-trend"></i></div>
+          <div class="right"><button class="btn" data-open="热点词.txt">改关键词</button><button class="btn primary" id="trend-fetch">刷新</button></div></div>
+        <div class="srcs" id="trend-srcs"></div>
+        <div class="bar" id="trend-bar"></div>
+        <div class="subhint"><span id="trend-hint">同行在聊、主平台还没人讲的。能讲的转灵感，不相干的忽略</span><span id="trend-count"></span></div>
+        <div id="trend-list"></div>
+      </section>
+
+      <!-- 发现 -->
+      <section class="page on" id="p-find">
+        <div class="eyebrow" id="find-eyebrow"></div>
+        <div class="tabs">
+          <div class="tab on">爆款<i id="t-all"></i></div>
+          <div class="right">
+            <input class="inp" id="q" placeholder="搜索标题、账号">
+            <button class="btn" id="view-toggle">▦ 卡片</button>
+          </div>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="panel">
+          <div class="ph"><b>本周热议</b><span class="hint">近 7 天 · 两位以上博主都在说 · 点选看笔记</span>
+            <div class="seg" id="hot-seg"><span class="on" data-v="all">全部</span></div>
+          </div>
+          <div class="hot" id="hot"></div>
+        </div>
+        <div class="bar" id="bar"></div>
+        <div class="subhint"><span>点上面的数字筛选，再点一次取消</span><span id="count"></span></div>
+        <div id="list"></div>
+      </section>
+
+      <!-- 选题 -->
+      <section class="page" id="p-topic">
+        <div class="eyebrow">选题 · 选题卡 + 完整口播脚本 · 等你审</div>
+        <div class="tabs"><div class="tab on">选题<i id="t-topic"></i></div></div>
+        <div class="stats" id="topic-stats"></div>
+        <div id="topic-list"></div>
+      </section>
+
+      <!-- 对标池 -->
+      <section class="page" id="p-bench">
+        <div class="eyebrow">对标池 · 同一账号低粉爆款出现 ≥ 2 次自动进来</div>
+        <div class="tabs"><div class="tab on">对标池<i id="t-bench"></i></div></div>
+        <div id="bench-list"></div>
+      </section>
+
+      <!-- 搜索词 -->
+      <section class="page" id="p-kw">
+        <div class="eyebrow">搜索词 · 豆包每天按这些词采集 · 改词请改 采集指令.md</div>
+        <div class="tabs"><div class="tab on">搜索词<i id="t-kw"></i></div></div>
+        <div id="kw-list"></div>
+      </section>
+
+      <!-- 规则 -->
+      <section class="page" id="p-rules">
+        <div class="eyebrow">规则 · 来自 规则.md · 改规则请改文件</div>
+        <div class="tabs"><div class="tab on">分级规则</div></div>
+        <div id="rules-body"></div>
+      </section>
+      <div class="reader" id="reader">
+        <div class="rd-bar">
+          <button class="btn" id="rd-close" title="Esc">← 返回</button>
+          <button class="btn" id="rd-back" disabled>‹ 后退</button>
+          <div class="ti"><b id="rd-title"></b><span id="rd-url"></span></div>
+          <span id="rd-acts" style="display:flex;gap:8px"></span>
+          <button class="btn" id="rd-out" title="在系统浏览器里打开">↗ 浏览器</button>
+        </div>
+        <div class="rd-view" id="rd-view">加载中…</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <div class="dh"><h2 id="d-title"></h2><button class="x" id="d-x" aria-label="关闭">×</button></div>
+  <div class="db" id="d-body"></div>
+</aside>
+<div class="toast" id="toast"></div>
+<script>document.write('<script src="配置.js?t='+Date.now()+'"><\/script>')</script>
+<script>document.write('<script src="数据.js?t='+Date.now()+'"><\/script>')</script>
+<script>
+(function(){
+if(window.chrome&&window.chrome.webview) document.documentElement.classList.add('app');
+const D = window.RADAR_DATA;
+if(!D){ document.querySelector('.main').innerHTML='<div class="empty">没读到 数据.js，确认它和本页在同一个文件夹</div>'; return; }
+
+// ── 配置：全部来自 配置.js，改配置不用改代码 ──
+const CFG = window.WORKBENCH_CONFIG || {};
+const NAME = CFG.name || '内容爆款工作台';
+const SHORT = CFG.shortName || NAME;
+const SUB = CFG.subtitle || 'RADAR';
+const GREET = CFG.greeting || '';
+const PLATS = (CFG.platforms && CFG.platforms.length) ? CFG.platforms
+            : [{id:'dy',name:'抖音',color:'#1a1a1a'},{id:'xhs',name:'小红书',color:'#e2412f'}];
+const PF = {}; PLATS.forEach(p=>PF[p.id]=p.name);
+const PCOLOR = id => { const p=PLATS.find(x=>x.id===id); return p&&p.color?p.color:'#8a8a8a'; };
+const R = Object.assign({}, CFG.grading||{}, D.rules||{});
+const ME = CFG.account || D.me || {fans:0};
+const KWS = CFG.keywords || D.keywords || [];
+const MAIN_PF = (CFG.primaryPlatform && PF[CFG.primaryPlatform]) ? CFG.primaryPlatform : PLATS[0].id;
+const MAIN_PF_NAME = PF[MAIN_PF] || '';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n>=10000 ? (n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'万' : String(n);
+
+// 品牌、标题、平台筛选都按配置来
+document.title = NAME;
+$('.titlebar .t').textContent = NAME;
+$('.brand b').textContent = SHORT;
+$('.brand span').textContent = SUB;
+const th = $('#trend-hint');
+if(th) th.textContent = CFG.trendHint || ('同行在聊、'+MAIN_PF_NAME+'还没人讲的。能讲的转灵感，不相干的忽略');
+$('#hot-seg').innerHTML = [{id:'all',name:'全部'}]
+  .concat(PLATS.filter(p=>D.items.some(i=>i.pf===p.id)))
+  .map((p,i)=>`<span class="${i===0?'on':''}" data-v="${p.id}">${p.name}</span>`).join('');
+
+// 审核状态存在浏览器本地，不回写文件；「跑今日」时我会读你导出的结果
+const LS = (CFG.appId||'content-workbench')+'-review';
+const saved = JSON.parse(localStorage.getItem(LS)||'{}');
+
+// 倍数与分级：唯一的判定逻辑，和 规则.md 一致
+D.items.forEach(it=>{
+  it.inter = it.likes+it.comments+it.saves;
+  it.mult = it.inter/Math.max(it.fans,1);
+  it.grade = it.fans<=R.aFans && it.mult>=R.aMult ? 'A'
+           : it.fans<=R.bFans && it.mult>=R.bMult ? 'B'
+           : it.fans<=R.bFans && it.mult>=R.cMult ? 'C'
+           : it.fans>R.dropFans ? 'X' : '参考';
+  const s = saved[it.id];
+  if(s){ it.status=s.status; it.note=s.note; }
+});
+
+const today = D.updated.slice(0,10);
+const state = { stat:'todo', pf:'all', grade:'all', hot:'all', topic:null, q:'', view:'card' };
+
+const STATS = [
+  {k:'todo',  label:'未处理',     test:it=>!it.status && it.grade!=='X', sub:()=>'还没过也没弃'},
+  {k:'new',   label:'今天新增',   test:it=>it.date===today, sub:l=>`低粉 ${l.filter(i=>'AB'.includes(i.grade)).length} · 其他 ${l.filter(i=>!'AB'.includes(i.grade)).length}`},
+  {k:'a',     label:'A 级 · 重点', test:it=>it.grade==='A', sub:()=>`粉丝≤${R.aFans} 且 ×${R.aMult}+`},
+  {k:'x10',   label:'倍数 ×10 以上', test:it=>it.mult>=10, sub:l=>'最高 ×'+Math.max(0,...l.map(i=>i.mult)).toFixed(1)},
+  {k:'pass',  label:'已过 · 可拍',  test:it=>it.status==='pass', sub:l=>'通过率 '+pct(l.filter(i=>i.status==='pass').length, l.filter(i=>i.status).length)},
+  {k:'drop',  label:'已弃',       test:it=>it.status==='drop', sub:()=>'可以恢复'},
+];
+const pct=(a,b)=>b?Math.round(a/b*100)+'%':'0%';
+// 没有真封面图时，按主题给一个稳定的底色，封面文字照原作排
+const COVERS=[['#f3efe6','#2b2418'],['#e8eef0','#14303a'],['#eef0e6','#26301a'],['#f1e9ec','#3a1825'],['#1d1f22','#f4f1ea'],['#e9e8f2','#211d40'],['#f4ece3','#4a2610']];
+const hash=s=>[...s].reduce((h,c)=>(h*31+c.charCodeAt(0))|0,7);
+// 封面图：素材/封面/<笔记ID>.jpg|png|webp，没有就退回色块
+const SHOT_EXT=['jpg','png','webp'];
+const noteId=it=>{const m=(it.url||'').match(/\/(?:explore|discovery\/item|video|note)\/([0-9a-zA-Z]+)/);return m?m[1]:null};
+const shotTag=(it,cls)=>{const n=noteId(it);return n?`<img class="${cls}" src="素材/封面/${n}.jpg" data-n="${n}" data-i="0" alt="" onerror="shotNext(this)">`:''};
+window.shotNext=function(el){const i=+el.dataset.i+1;if(i<SHOT_EXT.length){el.dataset.i=i;el.src=`素材/封面/${el.dataset.n}.${SHOT_EXT[i]}`}else el.remove()};
+const coverStyle=t=>{const [bg,fg]=COVERS[Math.abs(hash(t))%COVERS.length];return `background:${bg};color:${fg}`};
+
+const badge=it=>{
+  const m='×'+it.mult.toFixed(1);
+  if(it.grade==='A') return `<span class="badge a">低粉 ${m}</span>`;
+  if(it.grade==='B') return `<span class="badge">低粉 ${m}</span>`;
+  return `<span class="badge" style="background:rgba(120,120,120,.6)">${it.grade==='C'?'暂存':'参考'} ${m}</span>`;
+};
+const statusTag=it=>it.status?`<span class="status ${it.status}">${{pass:'已过',edit:'待改',drop:'已弃'}[it.status]}</span>`:'';
+
+function base(){ // 统计卡以外的所有筛选
+  const q=state.q.trim().toLowerCase();
+  return D.items.filter(it=>
+    (state.pf==='all'||it.pf===state.pf) &&
+    (state.grade==='all'||it.grade===state.grade) &&
+    (!state.topic||it.topic===state.topic) &&
+    (!q||(it.title+it.account+it.topic).toLowerCase().includes(q)));
+}
+
+function renderStats(){
+  const l=base();
+  $('#stats').innerHTML=STATS.map(s=>`
+    <div class="stat ${state.stat===s.k?'on':''}" data-k="${s.k}">
+      <div class="k">${s.label}<span class="chk">✓ 正在看</span></div>
+      <div class="v">${l.filter(s.test).length}</div>
+      <div class="s">${s.sub(l)}</div>
+    </div>`).join('');
+}
+
+function renderHot(){
+  // 本周热议：同一主题 ≥2 个不同账号在发
+  const pool=D.items.filter(it=>state.hot==='all'||it.pf===state.hot);
+  const g={};
+  pool.forEach(it=>{(g[it.topic]??=[]).push(it)});
+  const rows=Object.entries(g).map(([t,l])=>{
+    const acc=new Set(l.map(i=>i.account)).size;
+    const newest=l.reduce((a,b)=>a.date>b.date?a:b).date;
+    const trend=newest===today?'new':l.length>=3?'up':'keep';
+    return {t,l,acc,inter:l.reduce((s,i)=>s+i.inter,0),trend,
+      gap:!l.some(i=>i.pf===MAIN_PF)};
+  }).filter(r=>r.acc>=2).sort((a,b)=>b.acc-a.acc||b.inter-a.inter);
+  $('#hot').innerHTML=rows.length?rows.map(r=>`
+    <div class="hc" data-t="${esc(r.t)}" ${state.topic===r.t?'style="border-color:var(--green)"':''}>
+      <b>${esc(r.t)}</b>
+      <div class="m"><em>${r.acc}</em> 位博主 · ${r.l.length} 条</div>
+      <div class="m">互动 ${fmt(r.inter)}</div>
+      <div class="f"><span class="pip ${r.trend}"></span><span class="lb">${{new:'新出现',up:'升温',keep:'持续'}[r.trend]}</span>
+        ${r.gap?'<span class="gap-tag">'+MAIN_PF_NAME+'还没人做</span>':''}</div>
+    </div>`).join(''):'<div class="empty" style="padding:20px">还没有两位以上博主同时在说的主题</div>';
+}
+function renderBar(){
+  const all=D.items, n=f=>all.filter(f).length;
+  const chip=(grp,v,label,cnt,dot)=>`<span class="chip ${state[grp]===v?'on':''}" data-g="${grp}" data-v="${v}">${dot?`<span class="pip" style="background:${dot}"></span>`:''}${label}${cnt!=null?` <i>${cnt}</i>`:''}</span>`;
+  const plats = PLATS.filter(p=>n(i=>i.pf===p.id));
+  $('#bar').innerHTML=
+    chip('pf','all','全部平台')+
+    plats.map(p=>chip('pf',p.id,p.name,n(i=>i.pf===p.id),p.color)).join('')+
+    '<span class="sep"></span>'+
+    chip('grade','all','全部等级')+
+    chip('grade','A','A 重点',n(i=>i.grade==='A'))+
+    chip('grade','B','B 收',n(i=>i.grade==='B'))+
+    chip('grade','C','C 暂存',n(i=>i.grade==='C'))+
+    (state.topic?`<span class="chip on" data-g="topic" data-v="">${esc(state.topic)} ✕</span>`:'')+
+    `<div class="right">排序：<select class="sel" id="sort">
+      <option value="mult">倍数</option><option value="inter">互动</option><option value="date">最新</option><option value="fans">粉丝少</option>
+    </select></div>`;
+  $('#sort').value=state.sort||'mult';
+}
+
+function current(){
+  const st=STATS.find(s=>s.k===state.stat);
+  const l=base().filter(st?st.test:()=>true);
+  const k=state.sort||'mult';
+  return l.sort((a,b)=> k==='date'?b.date.localeCompare(a.date) : k==='fans'?a.fans-b.fans : b[k]-a[k]);
+}
+
+function renderList(){
+  const l=current();
+  $('#count').textContent=`共 ${l.length} 条`;
+  if(!l.length){ $('#list').innerHTML='<div class="empty">这个筛选下没有内容</div>'; return; }
+  if(state.view==='card'){
+    $('#list').innerHTML='<div class="grid">'+l.map(it=>`
+      <div class="card" data-id="${it.id}">
+        <div class="cover" style="${coverStyle(it.topic)}">${badge(it)}${statusTag(it)}
+          <span>${esc(it.cover||it.title).replace(/\n/g,'<br>')}</span>${shotTag(it,'shot')}</div>
+        <div class="cbody">
+          <div class="ctitle">${esc(it.title)}</div>
+          <div class="cmeta"><span class="pf ${it.pf}" style="background:${PCOLOR(it.pf)}"></span><span class="who">${PF[it.pf]} · ${esc(it.account)} · 粉丝 ${fmt(it.fans)}</span>
+            <span class="inter">互动 ${fmt(it.inter)}</span></div>
+        </div>
+      </div>`).join('')+'</div>';
+  }else{
+    const max=Math.max(...l.map(i=>i.mult));
+    $('#list').innerHTML=`<table class="tbl"><thead><tr>
+      <th>标题</th><th>账号</th><th>平台</th><th class="num">粉丝</th><th class="num">互动</th><th class="num">倍数</th><th></th><th>级</th><th>状态</th><th>日期</th></tr></thead><tbody>`+
+      l.map(it=>`<tr data-id="${it.id}">
+        <td>${esc(it.title)}</td><td>${esc(it.account)}</td><td>${PF[it.pf]}</td>
+        <td class="num">${fmt(it.fans)}</td><td class="num">${fmt(it.inter)}</td>
+        <td class="num mult">×${it.mult.toFixed(1)}</td>
+        <td><div class="bartrack"><span style="width:${(it.mult/max*100).toFixed(0)}%"></span></div></td>
+        <td>${it.grade}</td><td>${it.status?{pass:'已过',edit:'待改',drop:'已弃'}[it.status]:'—'}</td><td>${it.date.slice(5)}</td>
+      </tr>`).join('')+'</tbody></table>';
+  }
+}
+let openId=null;
+function openDrawer(id){
+  const it=D.items.find(i=>i.id===id); if(!it) return;
+  openId=id;
+  $('#d-title').textContent=it.title;
+  const src=it.url?`<a href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.url)}</a>`:'<span style="color:var(--ink-4)">无链接</span>';
+  const c=it.card, s=it.script;
+  $('#d-body').innerHTML=`
+    ${shotTag(it,'dshot')}
+    <div class="src">
+      来源：<b>${PF[it.pf]} · ${esc(it.account)}</b> · 粉丝 ${fmt(it.fans)} · 发布 ${it.date}${it.demo?'<span class="demo">演示数据</span>':''}<br>
+      赞 ${fmt(it.likes)} · 评 ${fmt(it.comments)} · 藏 ${fmt(it.saves)} → 倍数 <b style="color:var(--green)">×${it.mult.toFixed(1)}</b> · ${it.grade} 级<br>
+      链接：${src}
+    </div>
+    ${it.askTop&&it.askTop.length?`<div class="sec"><h3>评论区在问</h3><div style="font-size:13px;color:var(--ink-2)">${it.askTop.map(a=>'· '+esc(a)).join('<br>')}</div></div>`:''}
+    ${c?`<div class="sec"><h3>选题卡</h3><dl class="kv">
+        <dt>钩子类型</dt><dd>${esc(it.hook||'—')}</dd>
+        <dt>为什么爆</dt><dd>${esc(c.why)}</dd>
+        <dt>我的角度</dt><dd>${esc(c.angle)}</dd>
+        <dt>适配度</dt><dd>${esc(c.fit)}</dd></dl></div>`
+      :`<div class="sec"><h3>选题卡</h3><div style="font-size:13px;color:var(--ink-4)">${'AB'.includes(it.grade)?'还没生成，下次「跑今日」补上':'未达 B 级，不出卡'}</div></div>`}
+    ${s?`<div class="sec"><h3>口播脚本 · 约 ${s.sec} 秒 · ${[s.hook,...s.body,s.close].join('').length} 字</h3><div class="script">
+        <p><span class="lbl">钩子 · 0–3 秒</span>${esc(s.hook)}</p>
+        <p><span class="lbl">展开</span>${s.body.map(esc).join('<br>')}</p>
+        <p><span class="lbl">收尾</span>${esc(s.close)}</p></div>
+        <button class="btn" id="copy" style="margin-top:4px">复制脚本</button></div>`
+      :(c?`<div class="sec"><h3>口播脚本</h3><div style="font-size:13px;color:var(--ink-4)">还没写，下次「跑今日」补上</div></div>`:'')}
+    <div class="sec"><h3>审核</h3>
+      <div class="review">
+        <button class="btn pass ${it.status==='pass'?'on':''}" data-s="pass">过 · 可拍</button>
+        <button class="btn edit ${it.status==='edit'?'on':''}" data-s="edit">改</button>
+        <button class="btn drop ${it.status==='drop'?'on':''}" data-s="drop">弃</button>
+      </div>
+      <textarea class="note" id="note" placeholder="改哪 / 为什么弃。弃的理由会收进 规则.md，下次不再给你同类的">${esc(it.note||'')}</textarea>
+    </div>`;
+  $('#mask').classList.add('on'); $('#drawer').classList.add('on');
+}
+function closeDrawer(){ $('#mask').classList.remove('on'); $('#drawer').classList.remove('on'); openId=null; }
+
+function persist(){
+  const out={}; D.items.forEach(i=>{ if(i.status||i.note) out[i.id]={status:i.status||null,note:i.note||''}; });
+  localStorage.setItem(LS,JSON.stringify(out));
+  if(APP) APP.postMessage({cmd:'saveReview', md:reviewMd()});
+}
+// 在桌面应用里时，壳提供 chrome.webview；浏览器直接打开时为空
+const APP = window.chrome && window.chrome.webview || null;
+if(APP) APP.addEventListener('message',e=>{ const r=e.data; if(!r) return;
+  if(r.what==='browseState'){ $('#rd-title').textContent=r.title||r.url; $('#rd-url').textContent=r.url; $('#rd-back').disabled=!r.back; return; }
+  if(r.what==='browseClosed'){ closeReader(false); return; }
+  if(r.what==='trends'||(r.ok===false&&trendBusy&&/^热点/.test(r.error))) onTrendsFetched(r.ok);
+  if(r.ok===false) toast(r.error); });
+function openFile(name){ if(APP) APP.postMessage({cmd:'open',name}); else toast('在桌面应用里才能直接打开文件'); }
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),1600); }
+const IDEA_LS=(CFG.appId||'content-workbench')+'-ideas';
+const KINDS={topic:'选题',line:'金句',misc:'随想'};
+let ideas=JSON.parse(localStorage.getItem(IDEA_LS)||'[]');
+const ideaState={kind:'topic', filter:'live', q:'', editing:null};
+async function loadIdeas(){
+  if(!APP) return;
+  try{
+    const r=await fetch('灵感.json?t='+Date.now());
+    if(r.ok){ ideas=await r.json(); localStorage.setItem(IDEA_LS,JSON.stringify(ideas)); }
+    else if(ideas.length) saveIdeas(); // 文件还没有、本地有：迁过去
+  }catch(e){}
+}
+function saveIdeas(){
+  localStorage.setItem(IDEA_LS,JSON.stringify(ideas));
+  if(APP) APP.postMessage({cmd:'saveIdeas', json:JSON.stringify(ideas,null,1), md:ideasMd()});
+}
+function ideasMd(){
+  const live=ideas.filter(i=>i.status!=='archived');
+  const line=i=>`- [${KINDS[i.kind]}]${i.status==='topic'?' [已转选题]':''} ${i.text.replace(/\n+/g,' / ')}${i.src?`  ——出处：${i.src}`:''}  (${i.ts.slice(0,16).replace('T',' ')})`;
+  return `# 灵感\n\n由应用自动生成，改动请在应用里做。共 ${live.length} 条，已归档 ${ideas.length-live.length} 条。\n\n`+
+    Object.entries(KINDS).map(([k,t])=>{const l=live.filter(i=>i.kind===k);return l.length?`## ${t}\n\n${l.map(line).join('\n')}\n`:''}).join('\n');
+}
+const pad=n=>String(n).padStart(2,'0');
+const nowIso=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;};
+function addIdea(){
+  const ta=$('#idea-in'), text=ta.value.trim(); if(!text) return;
+  ideas.unshift({id:'i'+Date.now().toString(36), text, kind:ideaState.kind, src:$('#idea-src').value.trim(), ts:nowIso(), status:null});
+  ta.value=''; $('#idea-src').value=''; saveIdeas(); renderIdea(); counts(); ta.focus();
+  toast('记下了');
+}
+function dayLabel(d){
+  const t=new Date(); const y=new Date(Date.now()-864e5);
+  const k=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
+  return d===k(t)?'今天':d===k(y)?'昨天':d.slice(5).replace('-',' 月 ')+' 日';
+}
+function linkify(t){ return esc(t).replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`); }
+function renderIdea(){
+  $('#idea-kinds').innerHTML=Object.entries(KINDS).map(([k,t])=>`<span class="kind ${ideaState.kind===k?'on':''}" data-kind="${k}">${t}</span>`).join('');
+  const live=ideas.filter(i=>i.status!=='archived');
+  $('#t-idea').textContent=live.length;
+  const chip=(v,label,n)=>`<span class="chip ${ideaState.filter===v?'on':''}" data-if="${v}">${label} <i>${n}</i></span>`;
+  $('#idea-bar').innerHTML=chip('live','全部',live.length)+
+    Object.entries(KINDS).map(([k,t])=>chip(k,t,live.filter(i=>i.kind===k).length)).join('')+
+    '<span class="sep"></span>'+chip('topic','已转选题',ideas.filter(i=>i.status==='topic').length)+
+    chip('archived','已归档',ideas.filter(i=>i.status==='archived').length);
+  const q=ideaState.q.trim().toLowerCase(), f=ideaState.filter;
+  const l=ideas.filter(i=>
+    (f==='archived'?i.status==='archived' : i.status!=='archived') &&
+    (f==='topic'?i.status==='topic':true) &&
+    (KINDS[f]?i.kind===f:true) &&
+    (!q||(i.text+i.src).toLowerCase().includes(q)));
+  if(!l.length){ $('#idea-list').innerHTML=`<div class="empty">${ideas.length?'这个筛选下没有灵感':'还没有灵感。刷到什么、想到什么，先记在上面'}</div>`; return; }
+  let html='', last='';
+  l.forEach(i=>{
+    const d=i.ts.slice(0,10);
+    if(d!==last){ html+=`<div class="idea-day">${dayLabel(d)}</div>`; last=d; }
+    const editing=ideaState.editing===i.id;
+    html+=`<div class="idea ${i.status==='archived'?'archived':''}" data-iid="${i.id}">
+      <span class="tm">${i.ts.slice(11,16)}</span>
+      <span class="kd ${i.kind}">${KINDS[i.kind]}</span>
+      <div class="main-col">
+        <div class="tx" ${editing?'contenteditable="plaintext-only"':''}>${editing?esc(i.text):linkify(i.text)}</div>
+        ${i.src?`<div class="sr">出处：${linkify(i.src)}</div>`:''}
+      </div>
+      <div class="acts">
+        ${editing?`<button data-ia="save">保存</button><button data-ia="cancel">取消</button>`
+        :i.status==='archived'?`<button data-ia="restore">恢复</button><button data-ia="del" class="danger">删除</button>`
+        :`<button data-ia="edit">编辑</button><button data-ia="kind">换类型</button>
+          <button data-ia="topic">${i.status==='topic'?'取消选题':'转选题'}</button><button data-ia="archive">归档</button>`}
+      </div>
+      ${i.status==='topic'?'<span class="st">✓ 已转选题</span>':''}
+    </div>`;
+  });
+  $('#idea-list').innerHTML=html;
+  if(ideaState.editing){ const el=document.querySelector(`[data-iid="${ideaState.editing}"] .tx`); if(el){ el.focus(); document.getSelection().selectAllChildren(el); document.getSelection().collapseToEnd(); } }
+}
+function ideaAction(id,a){
+  const i=ideas.find(x=>x.id===id); if(!i) return;
+  const ks=Object.keys(KINDS);
+  if(a==='edit'){ ideaState.editing=id; renderIdea(); return; }
+  if(a==='cancel'){ ideaState.editing=null; renderIdea(); return; }
+  if(a==='save'){ const t=document.querySelector(`[data-iid="${id}"] .tx`).innerText.trim(); if(t) i.text=t; ideaState.editing=null; toast('已保存'); }
+  if(a==='kind'){ i.kind=ks[(ks.indexOf(i.kind)+1)%ks.length]; }
+  if(a==='topic'){ i.status=i.status==='topic'?null:'topic'; toast(i.status?'已转选题，下次「跑今日」会给它出选题卡和脚本':'已取消'); }
+  if(a==='archive'){ i.status='archived'; toast('已归档，可在「已归档」里恢复'); }
+  if(a==='restore'){ i.status=null; }
+  if(a==='del'){ if(!confirm('彻底删除这条灵感？删除后不能恢复')) return; ideas=ideas.filter(x=>x!==i); }
+  saveIdeas(); renderIdea(); counts();
+}
+// ── 热点：壳负责抓（页面跨域抓不了），页面只读 热点.json ──
+const SRC={juejin:'掘金',ithome:'IT之家','v2ex-share':'V2EX','github-trending-today':'GitHub',hackernews:'HN',qbitai:'量子位',simonw:'Simon Willison'};
+let trends=null, trendBusy=false;
+const trendState={src:'all', view:'todo'};
+async function loadTrends(){
+  try{ const r=await fetch('热点.json?t='+Date.now()); if(r.ok) trends=await r.json(); }catch(e){}
+}
+function fetchTrends(){
+  if(!APP){ toast('在桌面应用里才能抓热点'); return; }
+  if(trendBusy) return;
+  trendBusy=true; if(page==='trend') renderTrend();
+  APP.postMessage({cmd:'fetchTrends'});
+}
+async function onTrendsFetched(ok){
+  trendBusy=false;
+  if(ok) await loadTrends();
+  counts(); if(page==='trend'||page==='today') PAGES[page]();
+}
+// 24 小时内第一次出现的算新
+const isNew=i=>trends&&!i.status&&i.first>=isoAgo(trends.updated,864e5);
+function isoAgo(iso,ms){ const d=new Date(new Date(iso).getTime()-ms); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+function renderTrend(){
+  const items=trends?trends.items:[];
+  const todo=items.filter(i=>!i.status);
+  $('#t-trend').textContent=todo.length||'';
+  $('#trend-fetch').textContent=trendBusy?'抓取中…':'刷新';
+  $('#trend-eyebrow').textContent='热点 · 上游信号 · '+(trends?`更新于 ${trends.updated.slice(5,16).replace('T',' ')}`:'还没抓过')+(APP?' · 每次打开应用自动抓一次':' · 浏览器里只能看，抓取要用桌面应用');
+  $('#trend-srcs').innerHTML=trends?Object.keys(SRC).filter(k=>trends.sources[k]).map(k=>{const s=trends.sources[k];
+    return `<span>${SRC[k]} ${s.ok?`<span class="ok">✓ ${s.count}</span>`:`<span class="bad" title="${esc(s.error)}">✗ ${esc(s.error)}</span>`}</span>`}).join(''):'';
+  const pool=items.filter(i=>trendState.view==='todo'?!i.status:!!i.status);
+  const chip=(v,label,n)=>`<span class="chip ${trendState.src===v?'on':''}" data-ts="${v}">${label} <i>${n}</i></span>`;
+  $('#trend-bar').innerHTML=chip('all','全部',pool.length)+
+    Object.keys(SRC).map(k=>{const n=pool.filter(i=>i.src===k).length; return n?chip(k,SRC[k],n):''}).join('')+
+    `<span class="sep"></span><span class="chip ${trendState.view==='done'?'on':''}" data-tv="1">已处理 <i>${items.length-todo.length}</i></span>`;
+  const l=pool.filter(i=>trendState.src==='all'||i.src===trendState.src);
+  $('#trend-count').textContent=`${l.length} 条`;
+  if(!l.length){ $('#trend-list').innerHTML=`<div class="empty">${!trends?(APP?'点右上角「刷新」抓第一次':'还没有 热点.json，先在桌面应用里抓一次'):trendState.view==='done'?'还没处理过':'都处理完了'}</div>`; return; }
+  $('#trend-list').innerHTML=l.map(i=>`<div class="trend ${i.status?'done':''}" data-tid="${i.id}">
+    <span class="sl">${SRC[i.src]||esc(i.src)}</span>
+    <div class="main-col">
+      <a class="tt" href="${esc(i.url)}" data-read="1">${isNew(i)?'<span class="nw">新</span>':''}${esc(i.title)}</a>
+      ${i.desc?`<div class="ds">${esc(i.desc)}</div>`:''}
+      <div class="mt">${i.hit?`<em>${esc(i.hit)}</em>`:''}首次 ${dayLabel(i.first.slice(0,10))} ${i.first.slice(11,16)}</div>
+    </div>
+    ${i.status?`<span class="st">${i.status==='idea'?'✓ 已转灵感':'已忽略'}</span><div class="acts"><button data-ta="undo">撤销</button></div>`
+      :`<div class="acts"><button class="go" data-ta="idea">转灵感</button><button data-ta="ignored">忽略</button></div>`}
+  </div>`).join('');
+}
+// 点开一条：桌面应用里在阅读器看，浏览器里照旧新标签页
+let readingId=null;
+function rdRect(){ const r=$('#rd-view').getBoundingClientRect(), k=devicePixelRatio;
+  return {x:Math.round(r.left*k), y:Math.round(r.top*k), w:Math.round(r.width*k), h:Math.round(r.height*k)}; }
+function openReader(id){
+  const i=trends.items.find(x=>x.id===id); if(!i) return;
+  if(!APP){ window.open(i.url,'_blank','noopener'); return; }
+  readingId=id;
+  $('#rd-title').textContent=i.title; $('#rd-url').textContent=i.url; $('#rd-back').disabled=true;
+  renderReaderActs();
+  fitReader(); $('#reader').classList.add('on');
+  APP.postMessage(Object.assign({cmd:'browse', url:i.url}, rdRect()));
+}
+function renderReaderActs(){
+  const i=readingId&&trends.items.find(x=>x.id===readingId);
+  $('#rd-acts').innerHTML=!i?'':i.status?`<span style="font-size:12px;color:var(--ink-3);align-self:center">${i.status==='idea'?'✓ 已转灵感':'已忽略'}</span>`
+    :`<button class="btn primary" data-ra="idea">转灵感</button><button class="btn" data-ra="ignored">忽略</button>`;
+}
+function closeReader(tell=true){
+  if(!readingId) return;
+  readingId=null; $('#reader').classList.remove('on');
+  if(tell&&APP) APP.postMessage({cmd:'browseClose'});
+}
+// 阅读器盖住整个右侧主区（主区自己会滚动，所以用 fixed 跟着它的位置走）
+function fitReader(){ const r=$('.main').getBoundingClientRect(), el=$('#reader');
+  Object.assign(el.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'}); }
+new ResizeObserver(()=>{ if(readingId) fitReader(); }).observe($('.main'));
+new ResizeObserver(()=>{ if(readingId&&APP) APP.postMessage(Object.assign({cmd:'browseRect'}, rdRect())); }).observe($('#rd-view'));
+function trendAction(id,a){
+  const i=trends&&trends.items.find(x=>x.id===id); if(!i) return;
+  if(a==='idea'){
+    ideas.unshift({id:'i'+Date.now().toString(36), text:i.title+(i.desc?'\n'+i.desc:''), kind:'topic', src:i.url, ts:nowIso(), status:null});
+    saveIdeas(); toast('已转进灵感');
+  }
+  i.status= a==='undo'?null : a;
+  if(a==='undo') toast('已撤销，转进灵感的那条要去灵感页自己删');
+  if(APP) APP.postMessage({cmd:'setTrend', id, status:i.status});
+  renderTrend(); renderReaderActs(); counts();
+}
+function renderToday(){
+  const todo=D.items.filter(i=>'AB'.includes(i.grade)&&!i.status);
+  const pass=D.items.filter(i=>i.status==='pass');
+  const h=new Date().getHours(), hi=h<11?'早上好':h<18?'下午好':'晚上好';
+  const wk='日一二三四五六'[new Date(today).getDay()];
+  const recent=ideas.filter(i=>i.status!=='archived').slice(0,5);
+  const hot=trends?trends.items.filter(isNew).slice(0,3):[];
+  $('#p-today').innerHTML=`<div class="today-cols"><div>
+    <div class="eyebrow">${today.replace(/-/g,' / ')} · 星期${wk} · 数据更新于 ${D.updated.slice(11)}</div>
+    <h1>${hi}${GREET?'，'+GREET:''}。</h1>
+    <div class="lead">今天有 ${todo.length} 份草稿等你审，${pass.length} 条已过可以拍。</div>
+    <div class="eyebrow">等你审</div>
+    ${todo.length?todo.sort((a,b)=>b.mult-a.mult).map(i=>`<div class="row" data-id="${i.id}">
+      <span class="t">${esc(i.title)}</span><span class="tag">${i.grade} 级 · ×${i.mult.toFixed(1)}${i.script?' · 脚本已写':''}</span>
+      <span class="go">审核 →</span></div>`).join(''):'<div class="row"><span class="t" style="color:var(--ink-4)">都审完了</span></div>'}
+    <div class="eyebrow" style="margin-top:26px">已过 · 待拍</div>
+    ${pass.length?pass.map(i=>`<div class="row" data-id="${i.id}"><span class="t">${esc(i.title)}</span><span class="tag">${i.script?i.script.sec+' 秒':'无脚本'}</span><span class="go">看脚本 →</span></div>`).join(''):'<div class="row"><span class="t" style="color:var(--ink-4)">还没有</span></div>'}
+    <div style="margin-top:26px;display:flex;gap:8px"><button class="btn primary" id="export">${APP?'查看审核结果':'导出审核结果'}</button>
+      <span style="font-size:12px;color:var(--ink-3);align-self:center">${APP?'每次点过/改/弃都自动存进 审核结果.md，「跑今日」时会读':'审完点这里，把文件放进工作台文件夹，下次「跑今日」我会读'}</span></div>
+    ${APP?`<div class="eyebrow" style="margin-top:30px">工作台文件</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${['配置.js','收件箱.md','规则.md','爆款库.md','采集指令.md','草稿'].map(f=>`<button class="btn" data-open="${f}">${f}</button>`).join('')}</div>`:''}
+    </div><aside class="today-side">
+      <div class="eyebrow">新到灵感</div>
+      ${recent.length?recent.map(i=>`<div class="mini-idea" data-goidea="1"><div class="t">${esc(i.text)}</div><div class="m">${KINDS[i.kind]} · ${dayLabel(i.ts.slice(0,10))} ${i.ts.slice(11,16)}</div></div>`).join('')
+        :'<div class="mini-idea" data-goidea="1"><div class="t" style="color:var(--ink-4)">还没有，点这里记第一条</div></div>'}
+      <button class="btn" data-goidea="1" style="margin-top:12px">+ 记灵感</button>
+      <div class="eyebrow" style="margin-top:28px">热点 · 新</div>
+      ${hot.length?hot.map(i=>`<div class="mini-idea" data-gotrend="1"><div class="t">${esc(i.title)}</div><div class="m">${SRC[i.src]||esc(i.src)}${i.hit?' · '+esc(i.hit):''}</div></div>`).join('')
+        :`<div class="mini-idea" data-gotrend="1"><div class="t" style="color:var(--ink-4)">${trendBusy?'正在抓…':'没有新的'}</div></div>`}
+    </aside></div>`;
+}
+
+function renderTopic(){
+  const l=D.items.filter(i=>i.card).sort((a,b)=>b.mult-a.mult);
+  $('#t-topic').textContent=l.length;
+  const c=k=>l.filter(i=>(i.status||'todo')===k).length;
+  $('#topic-stats').innerHTML=[['todo','待审'],['pass','已过'],['edit','待改'],['drop','已弃']].map(([k,t])=>
+    `<div class="stat"><div class="k">${t}</div><div class="v">${c(k)}</div></div>`).join('');
+  $('#topic-list').innerHTML=`<table class="tbl"><thead><tr><th>选题</th><th>钩子</th><th>我的角度</th><th class="num">倍数</th><th>脚本</th><th>状态</th></tr></thead><tbody>`+
+    l.map(i=>`<tr data-id="${i.id}"><td style="max-width:240px">${esc(i.title)}</td><td>${esc(i.hook)}</td>
+      <td style="max-width:340px;color:var(--ink-2)">${esc(i.card.angle)}</td><td class="num mult">×${i.mult.toFixed(1)}</td>
+      <td>${i.script?i.script.sec+' 秒':'—'}</td><td>${i.status?{pass:'已过',edit:'待改',drop:'已弃'}[i.status]:'待审'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+function renderBench(){
+  const g={};
+  D.items.filter(i=>'AB'.includes(i.grade)).forEach(i=>{(g[i.account]??=[]).push(i)});
+  const all=Object.entries(g).map(([a,l])=>({a,l,pf:l[0].pf,fans:l[0].fans,best:Math.max(...l.map(i=>i.mult))})).sort((x,y)=>y.l.length-x.l.length||y.best-x.best);
+  const inPool=all.filter(r=>r.l.length>=2);
+  $('#t-bench').textContent=inPool.length;
+  $('#bench-list').innerHTML=`<div class="subhint"><span>${inPool.length?'':'还没有账号出现 2 次以上，下面是候选'}</span><span>共 ${all.length} 个账号上过低粉爆款</span></div>
+    <table class="tbl"><thead><tr><th>账号</th><th>平台</th><th class="num">粉丝</th><th class="num">上榜次数</th><th class="num">最高倍数</th><th>状态</th></tr></thead><tbody>`+
+    all.map(r=>`<tr><td>${esc(r.a)}</td><td>${PF[r.pf]}</td><td class="num">${fmt(r.fans)}</td><td class="num">${r.l.length}</td>
+      <td class="num mult">×${r.best.toFixed(1)}</td><td>${r.l.length>=2?'<span style="color:var(--green)">已入池</span>':'候选'}</td></tr>`).join('')+'</tbody></table>';
+}
+
+function renderKw(){
+  $('#t-kw').textContent=KWS.length||'';
+  if(!KWS.length){ $('#kw-list').innerHTML='<div class="empty">还没填关键词。把 配置.js 里的 keywords 改成你赛道的搜索词</div>'; return; }
+  const hit=k=>D.items.filter(i=>(i.title+i.topic).toLowerCase().includes(k.replace(/\s|教程|入门|搭建/g,'').toLowerCase())).length;
+  $('#kw-list').innerHTML=`<table class="tbl"><thead><tr><th>搜索词</th><th class="num">命中条数</th><th></th></tr></thead><tbody>`+
+    KWS.map(k=>{const h=hit(k);return `<tr><td>${esc(k)}</td><td class="num">${h}</td><td style="color:var(--ink-4);font-size:12px">${h?'':'一周都是 0 就换掉'}</td></tr>`}).join('')+'</tbody></table>';
+}
+
+function renderRules(){
+  $('#rules-body').innerHTML=`<table class="tbl"><thead><tr><th>等级</th><th>条件</th><th>处理</th><th class="num">当前条数</th></tr></thead><tbody>
+    <tr><td><b>A · 重点</b></td><td>粉丝 ≤ ${R.aFans} 且 倍数 ≥ ${R.aMult}</td><td>必出选题卡 + 脚本</td><td class="num">${D.items.filter(i=>i.grade==='A').length}</td></tr>
+    <tr><td><b>B · 收</b></td><td>粉丝 ≤ ${R.bFans} 且 倍数 ≥ ${R.bMult}</td><td>出选题卡 + 脚本</td><td class="num">${D.items.filter(i=>i.grade==='B').length}</td></tr>
+    <tr><td><b>C · 暂存</b></td><td>粉丝 ≤ ${R.bFans} 且 倍数 ${R.cMult}–${R.bMult}</td><td>只记一行</td><td class="num">${D.items.filter(i=>i.grade==='C').length}</td></tr>
+    <tr><td>参考</td><td>其余未超 ${fmt(R.dropFans)} 粉</td><td>不出卡</td><td class="num">${D.items.filter(i=>i.grade==='参考').length}</td></tr>
+    <tr><td>不收</td><td>粉丝 &gt; ${fmt(R.dropFans)}</td><td>丢掉</td><td class="num">${D.items.filter(i=>i.grade==='X').length}</td></tr>
+    </tbody></table>
+    <div class="subhint" style="margin-top:12px"><span>倍数 = (赞 + 评 + 藏) ÷ 粉丝数 · 你当前粉丝 ${fmt(ME.fans||0)}</span></div>`;
+}
+function renderFind(){
+  $('#find-eyebrow').textContent=`发现 · 数据更新于 ${D.updated}`+(D.items.some(i=>i.demo)?' · 当前为演示数据':'');
+  $('#t-all').textContent=D.items.length;
+  renderStats(); renderHot(); renderBar(); renderList();
+}
+function counts(){
+  $('#n-find').textContent=D.items.length;
+  $('#n-topic').textContent=D.items.filter(i=>i.card&&!i.status).length||'';
+  $('#n-kw').textContent=KWS.length||'';
+  $('#n-idea').textContent=ideas.filter(i=>i.status!=='archived').length||'';
+  $('#n-trend').textContent=trends?trends.items.filter(isNew).length||'':'';
+  const g={}; D.items.filter(i=>'AB'.includes(i.grade)).forEach(i=>g[i.account]=(g[i.account]||0)+1);
+  $('#n-bench').textContent=Object.values(g).filter(n=>n>=2).length||'';
+}
+const PAGES={today:renderToday,idea:renderIdea,trend:renderTrend,find:renderFind,topic:renderTopic,bench:renderBench,kw:renderKw,rules:renderRules};
+let page='find';
+function go(p){
+  closeReader();
+  page=p;
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.p===p));
+  document.querySelectorAll('.page').forEach(s=>s.classList.toggle('on',s.id==='p-'+p));
+  PAGES[p](); counts();
+}
+const refresh=()=>{PAGES[page](); counts();};
+
+// ── 事件：全部委托在 document 上 ──
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const nav=t.closest('.nav a'); if(nav){ go(nav.dataset.p); return; }
+  if(t.closest('[data-goidea]')){ go('idea'); $('#idea-in').focus(); return; }
+  const kd=t.closest('.kind'); if(kd){ ideaState.kind=kd.dataset.kind; renderIdea(); $('#idea-in').focus(); return; }
+  const ifc=t.closest('[data-if]'); if(ifc){ ideaState.filter=ifc.dataset.if; ideaState.editing=null; renderIdea(); return; }
+  const ia=t.closest('[data-ia]'); if(ia){ ideaAction(ia.closest('[data-iid]').dataset.iid, ia.dataset.ia); return; }
+  if(t.id==='idea-add'){ addIdea(); return; }
+  if(t.closest('[data-gotrend]')){ go('trend'); return; }
+  const ts=t.closest('[data-ts]'); if(ts){ trendState.src=ts.dataset.ts; renderTrend(); return; }
+  if(t.closest('[data-tv]')){ trendState.view=trendState.view==='todo'?'done':'todo'; trendState.src='all'; renderTrend(); return; }
+  const ra=t.closest('[data-ra]'); if(ra&&readingId){ trendAction(readingId, ra.dataset.ra); return; }
+  if(t.id==='rd-close'){ closeReader(); return; }
+  if(t.id==='rd-back'){ APP&&APP.postMessage({cmd:'browseBack'}); return; }
+  if(t.id==='rd-out'){ APP&&APP.postMessage({cmd:'browseOut'}); closeReader(false); return; }
+  const ta=t.closest('[data-ta]'); if(ta){ trendAction(ta.closest('[data-tid]').dataset.tid, ta.dataset.ta); return; }
+  if(t.id==='trend-fetch'){ fetchTrends(); return; }
+  const tr=t.closest('.trend[data-tid]'); if(tr){ e.preventDefault(); openReader(tr.dataset.tid); return; }
+  const st=t.closest('.stat[data-k]'); if(st){ state.stat=state.stat===st.dataset.k?null:st.dataset.k; renderFind(); return; }
+  const hc=t.closest('.hc'); if(hc){ state.topic=state.topic===hc.dataset.t?null:hc.dataset.t; renderFind(); return; }
+  const seg=t.closest('#hot-seg span'); if(seg){ state.hot=seg.dataset.v; document.querySelectorAll('#hot-seg span').forEach(s=>s.classList.toggle('on',s===seg)); renderHot(); return; }
+  const ch=t.closest('.chip'); if(ch){ const g=ch.dataset.g; state[g]= g==='topic'?null : ch.dataset.v; renderFind(); return; }
+  const rv=t.closest('.review .btn'); if(rv&&openId){
+    const it=D.items.find(i=>i.id===openId); const s=rv.dataset.s;
+    it.status=it.status===s?null:s; persist(); openDrawer(openId); refresh();
+    toast(it.status?{pass:'已标记为过',edit:'已标记为待改',drop:'已弃，记得写一句为什么'}[it.status]:'已取消');
+    return;
+  }
+  if(t.id==='copy'){ const it=D.items.find(i=>i.id===openId), s=it.script;
+    navigator.clipboard.writeText([s.hook,...s.body,s.close].join('\n\n')).then(()=>toast('脚本已复制'),()=>toast('复制失败，手动选中吧')); return; }
+  if(t.id==='export'){ exportReview(); return; }
+  if(t.dataset&&t.dataset.open){ openFile(t.dataset.open); return; }
+  if(t.id==='view-toggle'){ state.view=state.view==='card'?'table':'card'; t.textContent=state.view==='card'?'▦ 卡片':'☰ 表格'; renderList(); return; }
+  if(t.id==='mask'||t.id==='d-x'){ closeDrawer(); return; }
+  const row=t.closest('[data-id]'); if(row){ openDrawer(row.dataset.id); }
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){ state.q=e.target.value; renderStats(); renderList(); }
+  if(e.target.id==='idea-q'){ ideaState.q=e.target.value; renderIdea(); }
+  if(e.target.id==='note'&&openId){ D.items.find(i=>i.id===openId).note=e.target.value; persist(); }
+});
+document.addEventListener('change',e=>{ if(e.target.id==='sort'){ state.sort=e.target.value; renderList(); } });
+document.addEventListener('keydown',e=>{
+  const tg=e.target;
+  // 记录框：Enter 记下，Shift+Enter 换行；中文输入法选词时不触发
+  if(tg.id==='idea-in'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); addIdea(); return; }
+  if(tg.id==='idea-src'&&e.key==='Enter'&&!e.isComposing){ e.preventDefault(); addIdea(); return; }
+  if(tg.classList&&tg.classList.contains('tx')&&ideaState.editing){
+    if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); ideaAction(ideaState.editing,'save'); return; }
+    if(e.key==='Escape'){ ideaAction(ideaState.editing,'cancel'); return; }
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='i'){ e.preventDefault(); go('idea'); $('#idea-in').focus(); return; }
+  if(e.key==='Escape'){ if(readingId){ closeReader(); return; } closeDrawer(); }
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); go('find'); $('#q').focus(); }
+});
+
+// 审核结果导出成 markdown，放回工作台文件夹，「跑今日」时我读它更新 规则.md
+function reviewMd(){
+  const l=D.items.filter(i=>i.status);
+  const lab={pass:'过',edit:'改',drop:'弃'};
+  return `# 审核结果 · ${new Date().toISOString().slice(0,10)}\n\n| 状态 | 标题 | 账号 | 倍数 | 备注 |\n|---|---|---|---|---|\n`+
+    l.map(i=>`| ${lab[i.status]} | ${i.title} | ${i.account} | ×${i.mult.toFixed(1)} | ${(i.note||'').replace(/\|/g,'/').replace(/\n/g,' ')} |`).join('\n')+'\n';
+}
+function exportReview(){
+  const l=D.items.filter(i=>i.status);
+  if(!l.length){ toast('还没审过任何一条'); return; }
+  if(APP){ openFile('审核结果.md'); return; }
+  const md=reviewMd();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));
+  a.download=`审核结果-${new Date().toISOString().slice(0,10)}.md`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast(`已导出 ${l.length} 条`);
+}
+
+$('.search').addEventListener('click',()=>{ go('find'); $('#q').focus(); });
+go('find');
+loadIdeas().then(()=>{ counts(); if(page==='idea'||page==='today') PAGES[page](); });
+loadTrends().then(()=>{ counts(); if(page==='trend'||page==='today') PAGES[page](); if(APP) fetchTrends(); });
+})();
+</script>
+</body>
+</html>

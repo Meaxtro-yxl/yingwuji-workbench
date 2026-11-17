@@ -1,0 +1,30 @@
+# 构建产物
+*.exe
+*.exe.old
+*.pdb
+*.obj
+
+# 根目录的 WebView2 运行库副本（构建时从 app/lib 复制）
+/Microsoft.Web.WebView2.*.dll
+/WebView2Loader.dll
+
+# 运行时生成（每个人自己的数据，不进仓库）
+灵感.json
+灵感.md
+热点.json
+审核结果.md
+app/_inbox.json
+*.tmp
+
+# 个人内容
+草稿/*.md
+!草稿/_模板.md
+素材/封面/*
+!素材/封面/.gitkeep
+采集输出_*.md
+收件箱_采集全文_*.md
+*.bak-*
+
+# 系统
+Thumbs.db
+desktop.ini
